@@ -25,12 +25,13 @@ class SerialRFID
 {
 public:
   SerialRFID(Stream &s) : serial(s){};
-  static bool isEqualTag(char nTag[], char oTag[]);
+  static bool isEqualTag(char *nTag, char *oTag);
 
 private:
   Stream &serial;
+  void clearStream();
   static bool isPrintableTagChar(char theChar);
-  static void findTagInBuffer(char buf[], int bufSize, char newTag[]);
+  static void findTagInBuffer(char *buf, int bufSize, char *newTag);
 };
 
 #endif

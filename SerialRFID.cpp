@@ -19,7 +19,7 @@ bool SerialRFID::isPrintableTagChar(char theChar)
   }
 }
 
-bool SerialRFID::isEqualTag(char nTag[], char oTag[])
+bool SerialRFID::isEqualTag(char *nTag, char *oTag)
 {
   if (strlen(nTag) != LEN_ID_PRINTABLE ||
       strlen(oTag) != LEN_ID_PRINTABLE)
@@ -38,7 +38,7 @@ bool SerialRFID::isEqualTag(char nTag[], char oTag[])
   return true;
 }
 
-void SerialRFID::findTagInBuffer(char buf[], int bufSize, char newTag[])
+void SerialRFID::findTagInBuffer(char *buf, int bufSize, char *newTag)
 {
   memset(newTag, 0, LEN_ID);
 
@@ -76,5 +76,13 @@ void SerialRFID::findTagInBuffer(char buf[], int bufSize, char newTag[])
   if (strlen(newTag) != LEN_ID_PRINTABLE)
   {
     memset(newTag, 0, LEN_ID);
+  }
+}
+
+void SerialRFID::clearStream()
+{
+  while (serial.available())
+  {
+    serial.read();
   }
 }
