@@ -4,7 +4,7 @@
 
 #include "SerialRFID.h"
 
-bool SerialRFID::isPrintableTagChar(char theChar)
+bool SerialRFID::isTagIdChar(char theChar)
 {
   if (theChar != TAG_CHAR_STX &&
       theChar != TAG_CHAR_CR &&
@@ -21,13 +21,13 @@ bool SerialRFID::isPrintableTagChar(char theChar)
 
 bool SerialRFID::isEqualTag(char *nTag, char *oTag)
 {
-  if (strlen(nTag) != LEN_ID_PRINTABLE ||
-      strlen(oTag) != LEN_ID_PRINTABLE)
+  if (strlen(nTag) != LEN_TAG_ID ||
+      strlen(oTag) != LEN_TAG_ID)
   {
     return false;
   }
 
-  for (int i = 0; i < LEN_ID; i++)
+  for (int i = 0; i < LEN_TAG_ID; i++)
   {
     if (nTag[i] != oTag[i])
     {
@@ -38,33 +38,33 @@ bool SerialRFID::isEqualTag(char *nTag, char *oTag)
   return true;
 }
 
-void SerialRFID::findTagInBuffer(char *buf, int bufSize, char *newTag)
+bool SerialRFID::findTagInBuffer(char *buf, int bufSize, char *newTag)
 {
-  memset(newTag, 0, LEN_ID);
+  memset(newTag, 0, LEN_TAG_ID + 1);
 
   if (bufSize < LEN_TAG)
   {
-    return;
+    return false;
   }
 
   int stxIdx = bufSize - LEN_TAG;
 
   if (buf[stxIdx] != TAG_CHAR_STX)
   {
-    return;
+    return false;
   }
 
   int counter = 0;
 
   for (int i = stxIdx; i < bufSize; i++)
   {
-    if (isPrintableTagChar(buf[i]))
+    if (isTagIdChar(buf[i]))
     {
       // Check if we are reading more bytes than expected
-      if (counter >= (LEN_ID - 1))
+      if (counter >= LEN_TAG_ID)
       {
-        memset(newTag, 0, LEN_ID);
-        return;
+        memset(newTag, 0, LEN_TAG_ID + 1);
+        return false;
       }
 
       newTag[counter] = buf[i];
@@ -73,16 +73,44 @@ void SerialRFID::findTagInBuffer(char *buf, int bufSize, char *newTag)
   }
 
   // Check if the output array length is not the expected
-  if (strlen(newTag) != LEN_ID_PRINTABLE)
+  if (strlen(newTag) != LEN_TAG_ID)
   {
-    memset(newTag, 0, LEN_ID);
+    memset(newTag, 0, LEN_TAG_ID + 1);
+    return false;
+  }
+  else
+  {
+    return true;
   }
 }
 
 void SerialRFID::clearStream()
 {
-  while (serial.available())
+  while (stream.available())
   {
-    serial.read();
+    stream.read();
   }
+}
+
+bool SerialRFID::readTag(char *newTag)
+{
+  if (stream.available() > 0 && stream.peek() != TAG_CHAR_STX)
+  {
+    clearStream();
+  }
+
+  if (stream.available() < LEN_TAG)
+  {
+    return false;
+  }
+
+  int bufSize = stream.available();
+  char buf[bufSize];
+
+  for (int i = 0; i < bufSize; i++)
+  {
+    buf[i] = stream.read();
+  }
+
+  return findTagInBuffer(buf, bufSize, newTag);
 }
