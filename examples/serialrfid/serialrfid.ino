@@ -7,24 +7,30 @@ const byte TX_PIN = 11;
 SoftwareSerial sSerial(RX_PIN, TX_PIN);
 SerialRFID rfid(sSerial);
 
-char newTag[LEN_TAG_ID + 1];
-char matchTag[LEN_TAG_ID + 1] = "5C00CADB5A17";
+char tag[SIZE_TAG_ID];
+char matchTag[SIZE_TAG_ID] = "5C00CADB5A17";
 
-void setup() {
+void setup()
+{
   Serial.begin(9600);
   sSerial.begin(9600);
 
   Serial.println(">> Starting SerialRFID example program");
 }
 
-void loop() {
-  if (rfid.readTag(newTag)) {
+void loop()
+{
+  if (rfid.readTag(tag, sizeof(tag)))
+  {
     Serial.print("Tag: ");
-    Serial.print(newTag);
+    Serial.print(tag);
 
-    if (SerialRFID::isEqualTag(newTag, matchTag)) {
+    if (SerialRFID::isEqualTag(tag, matchTag))
+    {
       Serial.println(" / Match: OK");
-    } else {
+    }
+    else
+    {
       Serial.println(" / Match: No");
     }
   }

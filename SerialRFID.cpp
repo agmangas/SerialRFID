@@ -27,27 +27,19 @@ bool SerialRFID::isEqualTag(char *nTag, char *oTag)
     return false;
   }
 
-  for (int i = 0; i < LEN_TAG_ID; i++)
-  {
-    if (nTag[i] != oTag[i])
-    {
-      return false;
-    }
-  }
-
-  return true;
+  return strcmp(nTag, oTag);
 }
 
-bool SerialRFID::findTagInBuffer(char *buf, int bufSize, char *newTag)
+bool SerialRFID::findTagInBuffer(char *buf, int bufSize, char *tag, int tagSize)
 {
-  memset(newTag, 0, LEN_TAG_ID + 1);
-
-  if (bufSize < LEN_TAG)
+  if (tagSize < SIZE_TAG_ID || bufSize < SIZE_TAG)
   {
     return false;
   }
 
-  int stxIdx = bufSize - LEN_TAG;
+  memset(tag, 0, tagSize);
+
+  int stxIdx = bufSize - SIZE_TAG;
 
   if (buf[stxIdx] != TAG_CHAR_STX)
   {
@@ -60,22 +52,19 @@ bool SerialRFID::findTagInBuffer(char *buf, int bufSize, char *newTag)
   {
     if (isTagIdChar(buf[i]))
     {
-      // Check if we are reading more bytes than expected
+      // Check if we are reading more bytes than we should
       if (counter >= LEN_TAG_ID)
       {
-        memset(newTag, 0, LEN_TAG_ID + 1);
         return false;
       }
 
-      newTag[counter] = buf[i];
-      counter++;
+      tag[counter++] = buf[i];
     }
   }
 
   // Check if the output array length is not the expected
-  if (strlen(newTag) != LEN_TAG_ID)
+  if (strlen(tag) != LEN_TAG_ID)
   {
-    memset(newTag, 0, LEN_TAG_ID + 1);
     return false;
   }
   else
@@ -92,14 +81,19 @@ void SerialRFID::clearStream()
   }
 }
 
-bool SerialRFID::readTag(char *newTag)
+bool SerialRFID::readTag(char *tag, int tagSize)
 {
+  if (tagSize < SIZE_TAG_ID)
+  {
+    return false;
+  }
+
   if (stream.available() > 0 && stream.peek() != TAG_CHAR_STX)
   {
     clearStream();
   }
 
-  if (stream.available() < LEN_TAG)
+  if (stream.available() < SIZE_TAG)
   {
     return false;
   }
@@ -112,5 +106,5 @@ bool SerialRFID::readTag(char *newTag)
     buf[i] = stream.read();
   }
 
-  return findTagInBuffer(buf, bufSize, newTag);
+  return findTagInBuffer(buf, bufSize, tag, tagSize);
 }

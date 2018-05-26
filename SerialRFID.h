@@ -19,20 +19,22 @@ const char TAG_CHAR_ETX = 3;
 
 // Each tag is 16 bytes but the last 4 do not
 // contain any useful data and can be discarded
-const int LEN_TAG = 16;
+const int SIZE_TAG = 16;
 const int LEN_TAG_ID = 12;
+// Size of a C-style string ('\0' terminated) to contain a tag ID
+const int SIZE_TAG_ID = 13;
 
 class SerialRFID
 {
 public:
   SerialRFID(Stream &s) : stream(s){};
   static bool isEqualTag(char *nTag, char *oTag);
-  bool readTag(char *newTag);
+  bool readTag(char *tag, int tagSize);
 
 private:
   Stream &stream;
   static bool isTagIdChar(char theChar);
-  static bool findTagInBuffer(char *buf, int bufSize, char *newTag);
+  static bool findTagInBuffer(char *buf, int bufSize, char *tag, int tagSize);
   void clearStream();
 };
 
