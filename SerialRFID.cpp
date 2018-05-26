@@ -108,3 +108,31 @@ bool SerialRFID::readTag(char *tag, int tagSize)
 
   return findTagInBuffer(buf, bufSize, tag, tagSize);
 }
+
+void SerialRFID::onTag(rfid_callback callback, char *tag)
+{
+  if (cbCounter >= MAX_CALLBACKS)
+  {
+    return;
+  }
+
+  tagCallbacks[cbCounter] = {.callback = callback, .tag = tag};
+  cbCounter++;
+}
+
+void SerialRFID::run()
+{
+  char tag[SIZE_TAG_ID];
+
+  if (readTag(tag, sizeof(tag)))
+  {
+    for (int i = 0; i < cbCounter; i++)
+    {
+      if (SerialRFID::isEqualTag(tag, tagCallbacks[i].tag))
+      {
+        tagCallbacks[i].callback(tag);
+        return;
+      }
+    }
+  }
+}

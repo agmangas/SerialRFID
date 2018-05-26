@@ -24,15 +24,29 @@ const int LEN_TAG_ID = 12;
 // Size of a C-style string ('\0' terminated) to contain a tag ID
 const int SIZE_TAG_ID = 13;
 
+const int MAX_CALLBACKS = 5;
+
+typedef void (*rfid_callback)(char *tag);
+
+typedef struct
+{
+  rfid_callback callback;
+  char *tag;
+} TagCallback;
+
 class SerialRFID
 {
 public:
   SerialRFID(Stream &s) : stream(s){};
   static bool isEqualTag(char *nTag, char *oTag);
   bool readTag(char *tag, int tagSize);
+  void onTag(rfid_callback callback, char *tag);
+  void run();
 
 private:
   Stream &stream;
+  TagCallback tagCallbacks[MAX_CALLBACKS];
+  int cbCounter = 0;
   static bool isTagIdChar(char theChar);
   static bool findTagInBuffer(char *buf, int bufSize, char *tag, int tagSize);
   void clearStream();
