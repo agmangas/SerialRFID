@@ -27,7 +27,7 @@ bool SerialRFID::isEqualTag(char *nTag, char *oTag)
     return false;
   }
 
-  return strcmp(nTag, oTag);
+  return strcmp(nTag, oTag) == 0;
 }
 
 bool SerialRFID::findTagInBuffer(char *buf, int bufSize, char *tag, int tagSize)
