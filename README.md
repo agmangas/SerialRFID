@@ -4,7 +4,9 @@ This is a simple Arduino library to interact with [ID-innovations RFID readers](
 
 This library does not do much, it basically abstracts all the tasks related to the serial buffer management and discards the input when there is noise or the RFID tag is malformed.
 
-There are some usage examples in the `examples` folder.
+## User Guide
+
+Please check the usage examples in the `examples` folder.
 
 ## Installation
 
