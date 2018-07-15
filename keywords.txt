@@ -13,7 +13,7 @@ SerialRFID	KEYWORD1
 #######################################
 
 isEqualTag	KEYWORD2
-readTag		KEYWORD2
+readTag	KEYWORD2
 
 #######################################
 # Instances (KEYWORD2)
@@ -23,5 +23,5 @@ readTag		KEYWORD2
 # Constants (LITERAL1)
 #######################################
 
-LEN_TAG		LITERAL1
+LEN_TAG	LITERAL1
 LEN_TAG_ID	LITERAL1
